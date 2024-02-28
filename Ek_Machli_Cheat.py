@@ -1,7 +1,12 @@
 import random
 import string
 
-WORDS = ['Ek Machli', 'Pani me gayi', 'Chhapak']
+WORDS = ['Machli', 'Pani me gayi', 'Chhapak']
+
+def generate_random_player():
+    name = ''.join(random.choice(string.ascii_uppercase) for _ in range(6))
+    out = False  # Default value for is_out is False
+    return {'player_name': name, "is_out": out}
 
 def main():
     num_players = int(input("\nEnter the number of players: "))
@@ -11,55 +16,80 @@ def main():
     if enter_player_names == "1":
         players = [input(f"\nEnter the name of player {i+1}: ") for i in range(num_players)]
     else:
-        players = [generate_random_name() for _ in range(num_players)]
-        print(f"\nGenerated random player names: {players}")
+        players = [generate_random_player() for _ in range(num_players)]
+        print(f"\nGenerated random player names: {print([player['player_name'] for player in players])}")
     
-    show_answers = input("\nDo you want to show answers? (1/0): ")
+    my_position = int(input('Enter your position (1,2,3...)'))
+    my_name = players[my_position-1]['player_name']
+    print(f'Your name is {my_name}')
 
-    play_game(players,show_answers)
+    play_or_cheat = input("\nDo you want to Play(1) or Cheat(0)? (1/0): ")
 
-def play_game(players,show_answers):
-    answer_number = 1
+    play_game(players,play_or_cheat,my_position)
+
+def play_game(players,play_or_cheat,my_position):
+    your_name = players[my_position-1]['player_name']
+    right_answer = 1
     expected_answer_loop=1
     word_reduction_required=1
     while len(players) > 1:
         for player in players:
-            if(show_answers=="1"):
-                print (f"\nNext Answer = {answer_number} {WORDS[answer_number-1]}")
+            current_player_name = player['player_name']
+            if player["is_out"]: 
+                continue
+            if (current_player_name == your_name and play_or_cheat != "1"):
+                no_of_wrong_answers_user_input=0
+                no_of_wrong_answers_user_input = input('How many players gave wrong answer?')
+                no_of_wrong_answers = int(no_of_wrong_answers_user_input) if no_of_wrong_answers_user_input != '3' and no_of_wrong_answers_user_input.isdigit() else 0
+                if (no_of_wrong_answers>0):
+                    for i in range(no_of_wrong_answers):
+                        player_index_to_terminate =  players.index(player)-1
+                        player_to_terminate =  players[player_index_to_terminate]
+                        print(f'{player_to_terminate} is out')
+                        players.pop(player_index_to_terminate)
+                        right_answer = 1
+                        expected_answer_loop=1
+                        word_reduction_required=1
             
-            # Prompt the player for their input
-            guess = input(f"\n{player}, enter the word's number (1 for 'Ek Machli', 2 for 'Pani me gayi', 3 for 'Chhapak'): ").strip().capitalize()
+            answer = str(right_answer)
+            
+            if(play_or_cheat=="1"):
+                # Prompt the player for their input
+                answer = input(f"\n{current_player_name}, enter the word's number (1 for '{expected_answer_loop} Machli', 2 for 'Pani me gayi', 3 for 'Chhapak'): ").strip().capitalize()
+            else:
+                if (current_player_name == your_name):
+                    prefix = expected_answer_loop if right_answer == 1 else ""
+                    print (f"\nPlayer {current_player_name} Your Answer is {prefix} {WORDS[right_answer-1]} ,  answer_loop = {expected_answer_loop}, word_reduction_required = {word_reduction_required} ")
 
             # Check if the player's input matches the expected word or its index
-            if guess != str(answer_number):
-                print(f"\nOops! {player} said the wrong word. {player} is out!")
-                players.remove(player)
-                answer_number = 1
+            if answer != str(right_answer):
+                print(f"\nOops! {current_player_name} said the wrong word. right answer is {right_answer},  {current_player_name} is out!")
+                player["is_out"]=True
+                right_answer = 1
                 expected_answer_loop=1
                 word_reduction_required=1
             else:
+                if(play_or_cheat=="1"):
+                    print ('Right Ansser')      
                 if (word_reduction_required>0):
                     word_reduction_required-=1
                 
                 if (word_reduction_required==0):
-                    answer_number += 1
+                    right_answer += 1
                     word_reduction_required = expected_answer_loop
 
-                if (answer_number > len(WORDS)):
+                if (right_answer > len(WORDS)):
                     #print (f"Because {answer_number} > {len(WORDS)}, thus reseting answer_number to 1")
-                    answer_number = 1
+                    right_answer = 1
                     # Increase round multiplier after each complete cycle of 'Ek Machli', 'Pani me gayi', and 'Chhapak'
                     expected_answer_loop += 1
                     word_reduction_required=expected_answer_loop
                     #print (f"Repeate word {expected_answer_loop} times")
 
     # Print the winner
-    print(f"\nCongratulations, {players[0]}! You are the winner!")
+    print(f"\nCongratulations, {players[0]['player_name']}! You are the winner!")
     # Restart the game with remaining players
     main()
-
-def generate_random_name():
-    return ''.join(random.choice(string.ascii_uppercase) for _ in range(6))
 
 if __name__ == "__main__":
     main()
