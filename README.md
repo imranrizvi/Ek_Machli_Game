@@ -1,4 +1,4 @@
-‘Ek Machhali Paani Mein Gayi Chappak’: This viral game is trending on Instagram
+"One Fish" or ‘Ek Machhali Paani Mein Gayi Chappak’: This viral game is trending on Instagram
 
 The game can be played with many people, first, ask all players to form a circle. 
 One member of the group starts by saying “Ek machhali.” The next member needs to enact and say, “Paani mein gayi.” The third member continues with a clap and says, “Chappak.” 
